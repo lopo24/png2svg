@@ -258,8 +258,15 @@
 
         status.textContent = "✓ SVG descarregado com sucesso";
         btn.textContent = "Converter";
-        btn.disabled = false;
+        btn.disabled = true;
+        fileInput.value = "";
+        fileName.textContent = "";
+        dropZone.style.borderColor = "";
 
+        // limpar o status após 3 segundos
+        setTimeout(() => {
+        status.textContent = "";
+        }, 3000);
       } catch (err) {
         status.textContent = "Erro ao converter. Tenta novamente.";
         btn.textContent = "Converter";
