@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PNG to SVG Converter</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #1a1a18;
+      color: #d8d2c6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      color: #f0ece4;
+    }
+
+    p.subtitle {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: #888780;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: #252523;
+      border: 1px solid #3a3835;
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .drop-zone {
+      border: 1.5px dashed #4a4845;
+      border-radius: 12px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .drop-zone:hover {
+      border-color: #c8c4b4;
+    }
+
+    .drop-zone.dragover {
+      border-color: #c8c4b4;
+      background: #2e2c2a;
+    }
+
+    .drop-zone p {
+      font-size: 0.9rem;
+      color: #888780;
+      margin-top: 0.5rem;
+    }
+
+    .drop-zone span {
+      font-size: 2rem;
+    }
+
+    #file-name {
+      font-size: 0.8rem;
+      color: #c8c4b4;
+      margin-top: 0.5rem;
+    }
+
+    input[type="file"] { display: none; }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .color-row label {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      color: #888780;
+      text-transform: uppercase;
+      flex: 1;
+    }
+
+    input[type="color"] {
+      width: 48px;
+      height: 32px;
+      border: 1px solid #3a3835;
+      border-radius: 6px;
+      background: none;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    #hex-display {
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: #c8c4b4;
+      width: 80px;
+    }
+
+    button[type="submit"] {
+      background: #c8c4b4;
+      color: #1a1a18;
+      border: none;
+      border-radius: 10px;
+      padding: 0.9rem;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: #f0ece4;
+    }
+
+    button[type="submit"]:disabled {
+      background: #4a4845;
+      color: #888780;
+      cursor: not-allowed;
+    }
+
+    #status {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #888780;
+      min-height: 1.2rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: #4a4845;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>PNG to SVG</h1>
+  <p class="subtitle">converter</p>
+
+  <form class="card" id="form">
+    <div class="drop-zone" id="drop-zone">
+      <span>🖼</span>
+      <p>Arrasta uma imagem aqui<br>ou clica para escolher</p>
+      <div id="file-name"></div>
+      <input type="file" id="file-input" name="file" accept="image/png,image/jpeg">
+    </div>
+
+    <div class="color-row">
+      <label>Cor da estampa</label>
+      <input type="color" id="color-picker" name="color" value="#C8C4B4">
+      <span id="hex-display">#C8C4B4</span>
+    </div>
+
+    <button type="submit" id="btn" disabled>Converter</button>
+    <div id="status"></div>
+  </form>
+
+  <footer>fundo transparente · pronto para serigrafia</footer>
+
+  <script>
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const fileName = document.getElementById("file-name");
+    const colorPicker = document.getElementById("color-picker");
+    const hexDisplay = document.getElementById("hex-display");
+    const btn = document.getElementById("btn");
+    const status = document.getElementById("status");
+    const form = document.getElementById("form");
+
+    // clique na drop zone abre o file picker
+    dropZone.addEventListener("click", () => fileInput.click());
+
+    // drag and drop
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(file);
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files[0]) setFile(fileInput.files[0]);
+    });
+
+    function setFile(file) {
+      fileName.textContent = file.name;
+      btn.disabled = false;
+      status.textContent = "";
+      // injectar o ficheiro no input
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+    }
+
+    // actualizar hex display ao mudar cor
+    colorPicker.addEventListener("input", () => {
+      hexDisplay.textContent = colorPicker.value.toUpperCase();
+    });
+
+    // submeter formulário
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!fileInput.files[0]) return;
+
+      btn.disabled = true;
+      btn.textContent = "A converter...";
+      status.textContent = "Aguarda um momento...";
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("color", colorPicker.value);
+
+      try {
+        const response = await fetch("/convert", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Erro na conversão");
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "design.svg";
+        a.click();
+
+        status.textContent = "✓ SVG descarregado com sucesso";
+        btn.textContent = "Converter";
+        btn.disabled = false;
+
+      } catch (err) {
+        status.textContent = "Erro ao converter. Tenta novamente.";
+        btn.textContent = "Converter";
+        btn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
