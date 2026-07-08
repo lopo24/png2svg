@@ -56,9 +56,7 @@
       transition: border-color 0.2s;
     }
 
-    .drop-zone:hover {
-      border-color: #c8c4b4;
-    }
+    .drop-zone:hover { border-color: #c8c4b4; }
 
     .drop-zone.dragover {
       border-color: #c8c4b4;
@@ -71,9 +69,7 @@
       margin-top: 0.5rem;
     }
 
-    .drop-zone span {
-      font-size: 2rem;
-    }
+    .drop-zone span { font-size: 2rem; }
 
     #file-name {
       font-size: 0.8rem;
@@ -128,9 +124,7 @@
       transition: background 0.2s;
     }
 
-    button[type="submit"]:hover {
-      background: #f0ece4;
-    }
+    button[type="submit"]:hover { background: #f0ece4; }
 
     button[type="submit"]:disabled {
       background: #4a4845;
@@ -150,7 +144,24 @@
       font-size: 0.75rem;
       color: #4a4845;
       letter-spacing: 1px;
+      text-align: center;
     }
+
+    .bmc-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.7rem 1.4rem;
+      background: #FFDD00;
+      color: #1a1a18;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .bmc-btn:hover { background: #FFE533; }
   </style>
 </head>
 <body>
@@ -177,6 +188,7 @@
   </form>
 
   <footer>fundo transparente · pronto para serigrafia</footer>
+  <a href="https://buymeacoffee.com/loposp" target="_blank" class="bmc-btn">☕ Buy me a coffee</a>
 
   <script>
     const dropZone = document.getElementById("drop-zone");
@@ -188,10 +200,8 @@
     const status = document.getElementById("status");
     const form = document.getElementById("form");
 
-    // clique na drop zone abre o file picker
     dropZone.addEventListener("click", () => fileInput.click());
 
-    // drag and drop
     dropZone.addEventListener("dragover", (e) => {
       e.preventDefault();
       dropZone.classList.add("dragover");
@@ -216,18 +226,15 @@
       fileName.textContent = file.name;
       btn.disabled = false;
       status.textContent = "";
-      // injectar o ficheiro no input
       const dt = new DataTransfer();
       dt.items.add(file);
       fileInput.files = dt.files;
     }
 
-    // actualizar hex display ao mudar cor
     colorPicker.addEventListener("input", () => {
       hexDisplay.textContent = colorPicker.value.toUpperCase();
     });
 
-    // submeter formulário
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -263,10 +270,10 @@
         fileName.textContent = "";
         dropZone.style.borderColor = "";
 
-        // limpar o status após 3 segundos
         setTimeout(() => {
-        status.textContent = "";
+          status.textContent = "";
         }, 3000);
+
       } catch (err) {
         status.textContent = "Erro ao converter. Tenta novamente.";
         btn.textContent = "Converter";
